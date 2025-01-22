@@ -1,0 +1,74 @@
+﻿<Window x:Class="NoteApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NoteApp"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="650" Width="350">
+
+    <Window.Resources>
+        <!-- Animation of the panel for create new notes -->
+        <Storyboard x:Key="ShowPanelAnimation">
+            <DoubleAnimation Storyboard.TargetName="OverlayPanel" 
+                             Storyboard.TargetProperty="Opacity" 
+                             From="0" To="1" Duration="0:0:0.3" />
+        </Storyboard>
+        <Storyboard x:Key="HidePanelAnimation">
+            <DoubleAnimation Storyboard.TargetName="OverlayPanel" 
+                             Storyboard.TargetProperty="Opacity" 
+                             From="1" To="0" Duration="0:0:0.3" />
+        </Storyboard>
+    </Window.Resources>
+
+    <Grid Background="LightYellow">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Button for create the new note -->
+        <Button Content="Crea" Grid.Row="0"
+            Width="71" Height="30" Click="OpenPanel"
+            HorizontalAlignment="Right" VerticalAlignment="Top"
+            Background="LightYellow" />
+
+        <!-- Scroller for the list of notes -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden"
+                  HorizontalScrollBarVisibility="Disabled"
+                  Margin="10,10,10,0" PanningMode="VerticalOnly">
+            <StackPanel Name="NoteList" Orientation="Vertical" HorizontalAlignment="Stretch" />
+        </ScrollViewer>
+
+        <!-- Overlay covering the layout -->
+        <Grid Name="OverlayPanel" Background="#80000000" Visibility="Collapsed" Opacity="0" Grid.RowSpan="2">
+            <!-- Mask for close the panel on the outside of the cental panel -->
+            <Border Background="Transparent" MouseDown="ClosePanel" />
+
+            <!-- Central panel -->
+            <Border Background="White" Margin="40" CornerRadius="10" VerticalAlignment="Stretch">
+                <Grid>
+                    <StackPanel>
+                        <TextBlock Text="Create a new note..." FontSize="20" Margin="10" />
+                        <TextBox Name="TitleInput" Height="50"  VerticalContentAlignment="Center"
+                                 HorizontalAlignment="Stretch" FontSize="15"
+                                 Margin="10"/>
+                        <TextBox Name="ContentInput" Height=" 50" VerticalContentAlignment="Center"
+                                 HorizontalAlignment="Stretch" FontSize="15"
+                                 Margin="10"/>
+                    </StackPanel>
+                    <Button Content="Close" VerticalAlignment="Bottom" HorizontalAlignment="Left"
+                        Margin="10" Click="ClosePanel" />
+                    <Button Content="Save" VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                        Margin="10" Click="SendInput" />
+                </Grid>
+            </Border>
+
+        </Grid>
+    </Grid>
+
+</Window>
