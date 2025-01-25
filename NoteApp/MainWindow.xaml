@@ -3,12 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:NoteApp"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="650" Width="350">
+        Title="MainWindow" Height="650" Width="350"
+        Icon="Images/NoteIcon.ico">
 
+    <!-- Risorse globali, come animazioni e stili personalizzati -->
     <Window.Resources>
-        <!-- Animation of the panel for create new notes -->
+        <!-- Animazione per mostrare il pannello di creazione della nota -->
         <Storyboard x:Key="ShowPanelAnimation">
             <DoubleAnimation Storyboard.TargetName="OverlayPanel" 
                              Storyboard.TargetProperty="Opacity" 
@@ -19,55 +19,143 @@
                              Storyboard.TargetProperty="Opacity" 
                              From="1" To="0" Duration="0:0:0.3" />
         </Storyboard>
+
+        <!-- Animazioni per il pannello della nota modificata -->
+        <Storyboard x:Key="ShowNotePanelAnimation">
+            <DoubleAnimation Storyboard.TargetName="NotePanelOverlayPanel" 
+                             Storyboard.TargetProperty="Opacity" 
+                             From="0" To="1" Duration="0:0:0.3" />
+        </Storyboard>
+        <Storyboard x:Key="HideNotePanelAnimation">
+            <DoubleAnimation Storyboard.TargetName="NotePanelOverlayPanel" 
+                             Storyboard.TargetProperty="Opacity" 
+                             From="1" To="0" Duration="0:0:0.3" />
+        </Storyboard>
+
+        <!-- Stile personalizzato per la TextBox che indica un errore -->
+        <Style TargetType="TextBox" x:Key="ErrorTextBoxStyle">
+            <Style.Triggers>
+                <Trigger Property="Tag" Value="Error">
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <!-- Cambia il bordo in rosso e fa lampeggiare la TextBox -->
+                                <ColorAnimation 
+                                Storyboard.TargetProperty="(BorderBrush).(SolidColorBrush.Color)"
+                                To="Red" Duration="0:0:0.3" />
+                                <DoubleAnimation 
+                                Storyboard.TargetProperty="Opacity"
+                                From="1" To="0.5" AutoReverse="True" RepeatBehavior="3x"
+                                Duration="0:0:0.2" />
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
     <Grid Background="LightYellow">
+        <!-- Definizione delle colonne della griglia -->
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
+        <!-- Definizione delle righe della griglia -->
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- Button for create the new note -->
+        <!-- Pulsante per creare una nuova nota -->
         <Button Content="Crea" Grid.Row="0"
-            Width="71" Height="30" Click="OpenPanel"
-            HorizontalAlignment="Right" VerticalAlignment="Top"
-            Background="LightYellow" />
+                Width="71" Height="30" Click="OpenPanel"
+                HorizontalAlignment="Right" VerticalAlignment="Top"
+                Background="LightYellow" />
 
-        <!-- Scroller for the list of notes -->
+        <!-- Pannello che mostra la lista delle note -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden"
-                  HorizontalScrollBarVisibility="Disabled"
-                  Margin="10,10,10,0" PanningMode="VerticalOnly">
-            <StackPanel Name="NoteList" Orientation="Vertical" HorizontalAlignment="Stretch" />
+                      HorizontalScrollBarVisibility="Disabled"
+                      Margin="10,10,10,0" PanningMode="VerticalOnly"
+                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <StackPanel Name="NoteList" Orientation="Vertical"
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
         </ScrollViewer>
 
-        <!-- Overlay covering the layout -->
+        <!-- Pannello nascosto per creare una nuova nota -->
         <Grid Name="OverlayPanel" Background="#80000000" Visibility="Collapsed" Opacity="0" Grid.RowSpan="2">
-            <!-- Mask for close the panel on the outside of the cental panel -->
             <Border Background="Transparent" MouseDown="ClosePanel" />
 
-            <!-- Central panel -->
             <Border Background="White" Margin="40" CornerRadius="10" VerticalAlignment="Stretch">
                 <Grid>
                     <StackPanel>
                         <TextBlock Text="Create a new note..." FontSize="20" Margin="10" />
-                        <TextBox Name="TitleInput" Height="50"  VerticalContentAlignment="Center"
-                                 HorizontalAlignment="Stretch" FontSize="15"
-                                 Margin="10"/>
-                        <TextBox Name="ContentInput" Height=" 50" VerticalContentAlignment="Center"
-                                 HorizontalAlignment="Stretch" FontSize="15"
-                                 Margin="10"/>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <!-- Input per il titolo della nota -->
+                            <TextBox Grid.Row="0" Name="TitleInput" Height="50"
+                                     VerticalContentAlignment="Top" AcceptsReturn="True" TextWrapping="Wrap"
+                                     HorizontalAlignment="Stretch" FontSize="15"
+                                     Margin="10" Style="{StaticResource ErrorTextBoxStyle}"/>
+
+                            <!-- Input per il contenuto della nota -->
+                            <TextBox Grid.Row="1" Name="ContentInput"
+                                     AcceptsReturn="True" TextWrapping="Wrap"
+                                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                                     FontSize="15" Margin="10"
+                                     VerticalScrollBarVisibility="Auto" />
+                        </Grid>
                     </StackPanel>
+                    <!-- Pulsante per chiudere il pannello di creazione -->
                     <Button Content="Close" VerticalAlignment="Bottom" HorizontalAlignment="Left"
-                        Margin="10" Click="ClosePanel" />
+                            Margin="10" Click="ClosePanel" />
+                    <!-- Pulsante per salvare la nuova nota -->
                     <Button Content="Save" VerticalAlignment="Bottom" HorizontalAlignment="Right"
-                        Margin="10" Click="SendInput" />
+                            Margin="10" Click="SendInput" />
                 </Grid>
             </Border>
+        </Grid>
 
+        <!-- Pannello nascosto per modificare una nota -->
+        <Grid Name="NotePanelOverlayPanel" Background="#80000000" Visibility="Collapsed" Opacity="0" Grid.RowSpan="2">
+            <Border Background="Transparent" MouseDown="CloseEditPanelRequired" />
+
+            <Border Background="White" Margin="40" CornerRadius="10" VerticalAlignment="Stretch">
+                <Grid>
+                    <StackPanel>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <!-- Input per il titolo modificato della nota -->
+                            <TextBox Grid.Row="0" Name="ModifiedTitleInput" Height="50"
+                                     VerticalContentAlignment="Top" AcceptsReturn="True" TextWrapping="Wrap"
+                                     HorizontalAlignment="Stretch" FontSize="15"
+                                     Margin="10" Style="{StaticResource ErrorTextBoxStyle}"/>
+
+                            <!-- Input per il contenuto modificato della nota -->
+                            <TextBox Grid.Row="1" Name="ModifiedContentInput"
+                                     AcceptsReturn="True" TextWrapping="Wrap"
+                                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                                     FontSize="15" Margin="10"
+                                     VerticalScrollBarVisibility="Auto" />
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Pulsante per chiudere il pannello di modifica -->
+                    <Button Content="Close" VerticalAlignment="Bottom" HorizontalAlignment="Left"
+                            Margin="10" Click="CloseEditPanelRequired" />
+                    <!-- Pulsante per salvare le modifiche -->
+                    <Button Name="SubmitModifyNote" Content="Save" VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                            Margin="10" />
+                </Grid>
+            </Border>
         </Grid>
     </Grid>
 
